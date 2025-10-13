@@ -19,36 +19,6 @@ namespace Assets.Scripts.AIControllers
             // textField.text = message;
 
 
-            message = message.Replace("Nigger", "nope");
-            message = message.Replace("Nigga", "nope");
-            message = message.Replace("nigga", "nope");
-            message = message.Replace("Niger", "nope");
-            message = message.Replace("nigger", "nope");
-            message = message.Replace("niger", "nope");
-            message = message.Replace("negro", "nope");
-            message = message.Replace("Negro", "nope");
-            message = message.Replace("migger", "mope");
-            message = message.Replace("migga", "mope");
-            message = message.Replace("migga", "mope");
-            message = message.Replace("miger", "mope");
-            message = message.Replace("migger", "mope");
-            message = message.Replace("miger", "mope");
-            message = message.Replace("megro", "mope");
-            message = message.Replace("megro", "mope");
-            message = message.Replace("faggot", "fnope");
-            message = message.Replace("Faggot", "fnope");
-            message = message.Replace("feggot", "fnope");
-            message = message.Replace("Feggot", "fnope");
-            message = message.Replace("fagot", "fnope");
-            message = message.Replace("Fagot", "fnope");
-            message = message.Replace("Fogot", "fnope");
-            message = message.Replace("fogot", "fnope");
-            message = message.Replace("panigerism", "nope");
-            message = message.Replace("Nick G", "nope");
-            message = message.Replace("nick g", "nope");
-            message = message.Replace("Nick g", "nope");
-            message = message.Replace("nick g", "nope");
-
             char[] delims = new[] { '\r', '\n' };
             string[] outputLinesProcessed = message.Split(delims, StringSplitOptions.RemoveEmptyEntries);
             return outputLinesProcessed;

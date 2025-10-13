@@ -44,7 +44,16 @@ namespace OpenAI_API
 		{
 			get
 			{
-				return string.Format(_Api.ApiUrlFormat, _Api.ApiVersion, Endpoint);
+				// If ApiUrlFormat contains placeholders, format it. Otherwise, treat as fixed base URL and append endpoint
+				if (_Api.ApiUrlFormat != null && _Api.ApiUrlFormat.Contains("{0}") && _Api.ApiUrlFormat.Contains("{1}"))
+				{
+					return string.Format(_Api.ApiUrlFormat, _Api.ApiVersion, Endpoint);
+				}
+				else
+				{
+					string baseUrl = _Api.ApiUrlFormat?.TrimEnd('/') + "/";
+					return baseUrl + Endpoint;
+				}
 			}
 		}
 

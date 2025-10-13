@@ -6,7 +6,7 @@ using UnityEngine;
 public class CharacterInfo : MonoBehaviour
 {
     public string name;
-    public string fakeYouUUID;
+    public string voiceModel; // Voice model/character name for the new TTS service
     public MyCharacterController characterController;
     public DimensionGameObjects dimension;
 

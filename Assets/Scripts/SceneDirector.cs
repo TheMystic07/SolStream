@@ -34,7 +34,7 @@ public class SceneDirector : MonoBehaviour
     public DimensionGameObjects currentDimension;
     public DimensionGameObjects previousDimension;
 
-    public FakeYouAPIManager fakeYouAPIManager;
+    public CuaiTTSAPIManager cuaiTTSAPIManager;
 
     public CameraShotManager cameraShotManager;
 
@@ -50,7 +50,7 @@ public class SceneDirector : MonoBehaviour
     public TMP_Text textField;
     public TMP_Text titleText;
 
-    public Burpifier burpifier;
+    // public Burpifier burpifier; // Disabled
 
     public CinemachineTargetGroup targetGroup;
 
@@ -214,11 +214,11 @@ public class SceneDirector : MonoBehaviour
                     }
 
                     Debug.Log(3);
-                    // if rick it talking then burpify the audio
-                    if (voiceActingClips != null && talkingCharacter.name == "rick")
-                    {
-                        voiceActingClips[audioClipIndex] = burpifier.Burpify(voiceActingClips[audioClipIndex]);
-                    }
+                    // if rick it talking then burpify the audio - DISABLED
+                    // if (voiceActingClips != null && talkingCharacter.name == "rick")
+                    // {
+                    //     voiceActingClips[audioClipIndex] = burpifier.Burpify(voiceActingClips[audioClipIndex]);
+                    // }
 
                     Debug.Log(4);
 
@@ -455,7 +455,7 @@ public class SceneDirector : MonoBehaviour
                         nameOfAiGeneratedCharacter = defaultGuy.name;
                     }
 
-                    voiceModelUUIDs.Add(talkingCharacter.fakeYouUUID);
+                    voiceModelUUIDs.Add(talkingCharacter.voiceModel);
                     characterNames.Add(talkingCharacter.name);
                     // Ensures the character's name isn't the only thing on the line, prevents a potential error
                     if (talkingCharacter.name.Length + 2 <= line.Length)

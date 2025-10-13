@@ -49,7 +49,7 @@ public class YouTubeChatFromSteven : MonoBehaviour
 
     List<string> alreadyTakenTopics = new List<string>();
 
-    List<string> wordBlacklist = new List<string> {  "faggot", "fagot", "nigga", "niga", "niger", "nigger", "nick g", "nick c", "meth", "911", "9/11", "9 11", "nine eleven", "Homophobic", "Isis", "Muslim", "semitic", "Rape", "Retard", "Pedophile", "Pedophilia"};  // List of predefined words that topics cannot contain
+    List<string> wordBlacklist = new List<string> { };  // List of predefined words that topics cannot contain
 
     private bool connected = false;
 

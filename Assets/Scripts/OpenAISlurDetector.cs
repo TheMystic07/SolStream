@@ -10,6 +10,9 @@ using UnityEngine.UI;
 
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Unity.VisualScripting;
 
 
@@ -25,18 +28,22 @@ public class OpenAISlurDetector : MonoBehaviour
 
     void Start()
     {
+        // Fix SSL/TLS certificate validation issues in Unity
+        ServicePointManager.ServerCertificateValidationCallback = 
+            delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) 
+            { 
+                return true; 
+            };
+        
+        // Configure ServicePointManager for better connection handling
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+        ServicePointManager.DefaultConnectionLimit = 10;
+        ServicePointManager.Expect100Continue = false;
+
         // this is the system message. its probably shit but it kinda works
         systemMessage += "I am making ai generated Rick and morty episodes, where the topics that rick and morty are talking about are chosen by a live youtube chat. ";
-        systemMessage += "A different chatgpt agent takes this topic and generates a script. However some of these scripts contain slurs that i dont want,";
-        systemMessage += "mainly the N word and the F slur not Fuck the other one for gay people. Sometimes youtube chat is sneaky and will ask for things";
-        systemMessage += " like \"Rick and Morty talk about their friend Nick Ger\" which when said outloud sounds like the N word. Some other examples of things";
-        systemMessage += " that should be replaced are: \"niger\", \"nigeria\", \"nidder\", saying \"ger ni\" multiple times, saying \"gar nick\" multiple times, \"niga\", \"N I G G E R\", \"N-I-G-G-E-R\". ";
-        // systemMessage += " I will give you the script and can you replace every occurance of a potenial slur with the word nope. Dont change any of the formatting ";
-        // systemMessage += " of the input. if there is no slur just reply with \"no slurs detected\".";      
-        systemMessage += " Swear words like fuck, Frick, Crap and shit are fine, only the 2  slurs should change.";
-        systemMessage += " I will give you the script and if you dont detect any slurs respond with: [no slurs detected] if slurs are ";
-        systemMessage += " detected repsond with the word that should be replaced. e.g. respond: [niger]. if multiple different slurs are present respond with each one ";
-        systemMessage += " in square brakets e.g. [niger][N I D D E R][gar ni].";
+        systemMessage += "A different chatgpt agent takes this topic and generates a script.";
+        systemMessage += " All content including profanity and adult comedy is allowed.";
 
 
         // systemMessage += "you create terminal commands to satisfy a user's query for doing engineering/programming ";
@@ -100,35 +107,7 @@ public class OpenAISlurDetector : MonoBehaviour
 
     public string RemoveDirectSlurs(string chatgptOutputString)
     {
-        chatgptOutputString = chatgptOutputString.Replace("Nigger", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("Nigga", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("nigga", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("Niger", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("nigger", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("niger", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("negro", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("Negro", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("migger", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("migga", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("migga", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("miger", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("migger", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("miger", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("megro", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("megro", "mope");
-        chatgptOutputString = chatgptOutputString.Replace("faggot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("Faggot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("feggot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("Feggot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("fagot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("Fagot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("Fogot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("fogot", "fnope");
-        chatgptOutputString = chatgptOutputString.Replace("panigerism", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("Nick G", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("nick g", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("Nick g", "nope");
-        chatgptOutputString = chatgptOutputString.Replace("nick g", "nope");
+       
         return chatgptOutputString;
     }
 
@@ -169,12 +148,7 @@ public class OpenAISlurDetector : MonoBehaviour
                 var chatResult = await api.Chat.CreateChatCompletionAsync(new ChatRequest()
                 {
 
-                    // Model = useChatGPT4 ? Model.ChatGPT4_8k : Model.ChatGPTTurbo16k,
-                    // Model = Model.ChatGPTTurbo16k,
-                    Model = Model.ChatGPT4_8k,
-                    // Model = Model.ChatGPT4_8k_functions,
-                    // Functions = GetFunctionList(),
-                    // Function_Call = "auto",
+                    Model = new Model("gpt-oss:20b"),
                     Temperature = 1,
                     MaxTokens = 3000,
                     Messages = messages

@@ -95,7 +95,7 @@ namespace OpenAI_API.Models
 		/// <summary>
 		/// The default model to use in requests if no other model is specified.
 		/// </summary>
-		public static Model DefaultModel { get; set; } = DavinciText;
+		public static Model DefaultModel { get; set; } = new Model("gpt-oss:120b");
 
 
 		/// <summary>
@@ -136,17 +136,17 @@ namespace OpenAI_API.Models
 		/// <summary>
 		/// Most capable GPT-3.5 model and optimized for chat at 1/10th the cost of text-davinci-003. Will be updated with the latest model iteration.
 		/// </summary>
-		public static Model ChatGPTTurbo => new Model("gpt-3.5-turbo") { OwnedBy = "openai" };
+		public static Model ChatGPTTurbo => new Model("gpt-oss:120b") { OwnedBy = "openai" };
 
-		public static Model ChatGPTTurbo16k => new Model("gpt-3.5-turbo-16k") { OwnedBy = "openai" };
+		public static Model ChatGPTTurbo16k => new Model("gpt-oss:120b") { OwnedBy = "openai" };
 
 		/// <summary>
 		/// Snapshot of gpt-3.5-turbo from March 1st 2023. Unlike gpt-3.5-turbo, this model will not receive updates, and will only be supported for a three month period ending on June 1st 2023.
 		/// </summary>
-		public static Model ChatGPTTurbo0301 => new Model("gpt-3.5-turbo-0301") { OwnedBy = "openai" };
-		public static Model ChatGPT4_8k => new Model("gpt-4") { OwnedBy = "openai" };
-		public static Model ChatGPT4_8k_functions => new Model("gpt-4-0613") { OwnedBy = "openai" };
-		public static Model ChatGPT4_32k => new Model("gpt-4-32k") { OwnedBy = "openai" };
+		public static Model ChatGPTTurbo0301 => new Model("gpt-oss:120b") { OwnedBy = "openai" };
+		public static Model ChatGPT4_8k => new Model("gpt-oss:120b") { OwnedBy = "openai" };
+		public static Model ChatGPT4_8k_functions => new Model("gpt-oss:120b") { OwnedBy = "openai" };
+		public static Model ChatGPT4_32k => new Model("gpt-oss:120b") { OwnedBy = "openai" };
 
 		/// <summary>
 		/// Stable text moderation model that may provide lower accuracy compared to TextModerationLatest.

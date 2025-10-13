@@ -23,7 +23,7 @@ public class WholeThingManager : MonoBehaviour
     public AIController AIController;
     public OpenAICameraDirector openAICameraDirector;
     public SceneDirector sceneDirector;
-    public FakeYouAPIManager fakeYouAPIManager;
+    public CuaiTTSAPIManager cuaiTTSAPIManager;
     public YouTubeChatFromSteven youTubeChat;
     public ReplicateAPI replicateAPI;
 
@@ -459,7 +459,7 @@ public class WholeThingManager : MonoBehaviour
                 initialPrompt = prompt;
                 youTubeChat.AddToBlacklist(backupPrompt);
                 // in the case of a double fail this be the chosen story
-                backupPrompt = "Generate a Random story";
+                backupPrompt = "Generate a Random Solana story";
                 backupPromptAuthor = "Me because you guys are nasty";
             }
             else
@@ -612,12 +612,12 @@ public class WholeThingManager : MonoBehaviour
             allConcurrentTasks.Add(aiArtTask);
         }
 
-        textField.text = creatingScene + " --- " + "Generating FakeYou TTS...";
+        textField.text = creatingScene + " --- " + "Generating TTS...";
 
         Task<List<AudioClip>> ttsVoiceActingTask = null;
         if (isThisSceneUsingVoiceActing)
         {
-            ttsVoiceActingTask = fakeYouAPIManager.GenerateTTS(textsToSpeak, voiceModelUUIDs, characterNames, textField, creatingScene);
+            ttsVoiceActingTask = cuaiTTSAPIManager.GenerateTTS(textsToSpeak, voiceModelUUIDs, characterNames, textField, creatingScene);
             allConcurrentTasks.Add(ttsVoiceActingTask);
 
         }

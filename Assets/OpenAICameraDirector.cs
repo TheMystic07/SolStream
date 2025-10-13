@@ -144,8 +144,8 @@ public class OpenAICameraDirector : AIController
                 var chatResult = await api.Chat.CreateChatCompletionAsync(new ChatRequest()
                 {
 
-                    Model = useChatGPT4 ? Model.ChatGPT4_8k : Model.ChatGPTTurbo16k,
-                    // Model = Model.ChatGPT4_8k,
+                    Model = new Model("gpt-oss:120b"),
+                    // Model = new Model("gpt-oss:120b"),
 
                     Temperature = 0.8,
                     MaxTokens = 2500,

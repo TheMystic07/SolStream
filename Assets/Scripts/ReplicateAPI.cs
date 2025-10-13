@@ -20,7 +20,7 @@ using UnityEngine.SceneManagement;
 public class ReplicateAPI : MonoBehaviour
 {
     private const string API_URL = "https://api.replicate.com/v1/predictions";
-    private const string API_TOKEN = "r8_Pd1EcAQlG6TNpHhQUuzrwqTUOM0Nk571AALK2";
+    private const string API_TOKEN = "r8_OqH8anvtZzwCTgjdvCB7huHeYJciPKL2PWplr";
     public string promptToPredict; // This variable can be set in the Inspector
     public Texture2D downloadedImage; // The image will be stored here
 

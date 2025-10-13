@@ -207,29 +207,7 @@ public class SlurDetectorEvan : MonoBehaviour
 
     private List<string> KnownSlursPhonetic = new List<string>
         {
-            "FAKAT",
-            "FARKAT",
-
-            "FAJAT",
-            "FARJAT",
-
-            "NKR",
-            "NKA",
-            "NAKR",
-            "NAKKR",
-            "NAKA",
-            "NKKA",
-            "NKKR",
-            "NAKKA",
-
-            "NJR",
-            "NJA",
-            "NAJA",
-            "NAJR",
-            "NAJJR",
-            "NJJA",
-            "NJJR",
-            "NAJJA"
+            
         };
 
     public string meta3PhonicateVowels(string input)

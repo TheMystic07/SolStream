@@ -15,11 +15,13 @@ namespace OpenAI_API
 	public class OpenAIAPI : IOpenAIAPI
 	{
 		/// <summary>
-		/// Base url for OpenAI
-		/// for OpenAI, should be "https://api.openai.com/{0}/{1}"
-		/// for Azure, should be "https://(your-resource-name.openai.azure.com/openai/deployments/(deployment-id)/{1}?api-version={0}"
+		/// Base url for OpenAI-compatible API
+		/// Examples:
+		/// - OpenAI: "https://api.openai.com/{0}/{1}"
+		/// - Fixed base URL (no placeholders): "https://gpt.adityaberry.me/v1/"
+		/// - Azure: "https://(your-resource-name.openai.azure.com/openai/deployments/(deployment-id)/{1}?api-version={0}"
 		/// </summary>
-		public string ApiUrlFormat { get; set; } = "https://api.openai.com/{0}/{1}";
+		public string ApiUrlFormat { get; set; } = "https://gpt.adityaberry.me/v1/";
 
 		/// <summary>
 		/// Version of the Rest Api

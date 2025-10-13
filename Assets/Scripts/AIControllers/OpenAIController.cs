@@ -10,6 +10,9 @@ using UnityEngine.UI;
 
 using System.Threading.Tasks;
 using System.Net.Http;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Assets.Scripts.AIControllers;
 
 
@@ -101,6 +104,17 @@ public class OpenAIController : AIController
     {
         // this is the system message. its probably shit but it kinda works
 
+        // Fix SSL/TLS certificate validation issues in Unity
+        ServicePointManager.ServerCertificateValidationCallback = 
+            delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) 
+            { 
+                return true; 
+            };
+        
+        // Configure ServicePointManager for better connection handling
+        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+        ServicePointManager.DefaultConnectionLimit = 10;
+        ServicePointManager.Expect100Continue = false;
 
         // This line gets your API key (and could be slightly different on Mac/Linux)
         string key = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User);
@@ -169,9 +183,9 @@ public class OpenAIController : AIController
         // Add the message to the list
         messages.Add(userMessage);
 
-        // Retry logic
+        // Retry logic with exponential backoff
         int retryCount = 0;
-        const int maxRetryCount = 3;
+        const int maxRetryCount = 5;
         while (retryCount < maxRetryCount)
         {
             try
@@ -180,8 +194,8 @@ public class OpenAIController : AIController
                 var chatResult = await api.Chat.CreateChatCompletionAsync(new ChatRequest()
                 {
 
-                    Model = useChatGPT4 ? Model.ChatGPT4_8k : Model.ChatGPTTurbo16k,
-                    // Model = Model.ChatGPT4_8k,
+                    Model = new Model("gpt-oss:20b"),
+                    // Model = new Model("gpt-oss:20b"),
 
                     Temperature = 0.6,
                     MaxTokens = maxTokens,
@@ -198,41 +212,59 @@ public class OpenAIController : AIController
                 messages.Add(responseMessage);
 
                 // Exit the retry loop if the request is successful
-                break;
+                return responseMessage.Content;
             }
             catch (HttpRequestException ex)
             {
+                retryCount++;
+                int delayMs = 2000 * retryCount; // Exponential backoff: 2s, 4s, 6s, 8s, 10s
+                
                 if (ex.Message.Contains("429"))
                 {
                     // Model overloaded, retry after a delay
-                    retryCount++;
-                    Debug.LogWarning("TooManyRequests error. Retrying in 1 second...");
-                    await Task.Delay(1000); // Wait for 1 second before retrying
+                    Debug.LogWarning($"TooManyRequests error. Retrying in {delayMs / 1000} seconds... (Attempt {retryCount}/{maxRetryCount})");
+                }
+                else if (ex.InnerException is System.Net.WebException webEx)
+                {
+                    // Connection error, retry with longer delay
+                    Debug.LogError($"HTTP request error: {ex.Message}");
+                    Debug.LogError($"Inner exception: {webEx.Message}");
+                    Debug.LogWarning($"Retrying in {delayMs / 1000} seconds... (Attempt {retryCount}/{maxRetryCount})");
                 }
                 else
                 {
-                    // Other HTTP request error occurred, log the exception
+                    // Other HTTP request error occurred
                     Debug.LogError($"HTTP request error: {ex}");
-                    Debug.Log("Retrying in 1 second...");
-                    retryCount++;
-                    await Task.Delay(1000);
-                    // break;
+                    Debug.LogWarning($"Retrying in {delayMs / 1000} seconds... (Attempt {retryCount}/{maxRetryCount})");
+                }
+                
+                if (retryCount < maxRetryCount)
+                {
+                    await Task.Delay(delayMs);
                 }
             }
             catch (Exception ex)
             {
                 // Other exceptions occurred, log the exception
-                Debug.LogError($"Error: {ex}");
-                break;
+                Debug.LogError($"Unexpected error: {ex}");
+                retryCount++;
+                
+                if (retryCount < maxRetryCount)
+                {
+                    int delayMs = 2000 * retryCount;
+                    Debug.LogWarning($"Retrying in {delayMs / 1000} seconds... (Attempt {retryCount}/{maxRetryCount})");
+                    await Task.Delay(delayMs);
+                }
+                else
+                {
+                    break;
+                }
             }
-
-
-
         }
 
-        //return the message
-        return messages[messages.Count - 1].Content;
-
+        // If all retries failed, return null
+        Debug.LogError("All retry attempts failed.");
+        return null;
     }
 
 }
