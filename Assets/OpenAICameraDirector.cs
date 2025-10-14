@@ -16,6 +16,10 @@ using Assets.Scripts.AIControllers;
 // this script is used to get responses from chatgpt.
 public class OpenAICameraDirector : AIController
 {
+    #region Private Fields
+    [SerializeField] private string m_ApiKey;
+    #endregion
+
     private OpenAIAPI api;
     private List<ChatMessage> messages;
 
@@ -81,15 +85,8 @@ public class OpenAICameraDirector : AIController
     {
         // this is the system message. its probably shit but it kinda works
 
-
-        // This line gets your API key (and could be slightly different on Mac/Linux)
-        string key = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User);
-        if (string.IsNullOrEmpty(key))
-        {
-            Debug.LogError("OPEN AI KEY NOT FOUND");
-            return;
-        }
-        api = new OpenAIAPI(key);
+        // Using OSS models - API key is optional
+        api = new OpenAIAPI(string.IsNullOrEmpty(m_ApiKey) ? "" : m_ApiKey);
 
         string text = systemMessage.text;
 

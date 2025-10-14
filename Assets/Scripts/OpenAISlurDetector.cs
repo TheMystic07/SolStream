@@ -19,6 +19,10 @@ using Unity.VisualScripting;
 // this script is used to get responses from chatgpt.
 public class OpenAISlurDetector : MonoBehaviour
 {
+    #region Private Fields
+    [SerializeField] private string m_ApiKey;
+    #endregion
+
     private OpenAIAPI api;
     private List<ChatMessage> messages;
 
@@ -49,18 +53,8 @@ public class OpenAISlurDetector : MonoBehaviour
         // systemMessage += "you create terminal commands to satisfy a user's query for doing engineering/programming ";
         Debug.Log("system message: \n" + systemMessage);
 
-
-        // This line gets your API key (and could be slightly different on Mac/Linux)
-
-        string key = Environment.GetEnvironmentVariable("OPENAI_API_KEY", EnvironmentVariableTarget.User);
-        if (string.IsNullOrEmpty(key))
-        {
-            isEnabled = false;
-            Debug.LogError("OPEN AI KEY NOT FOUND");
-            return;
-        }
-
-        api = new OpenAIAPI(key);
+        // Using OSS models - API key is optional
+        api = new OpenAIAPI(string.IsNullOrEmpty(m_ApiKey) ? "" : m_ApiKey);
 
         // add the system message to the messages history.
         messages = new List<ChatMessage> {
@@ -148,7 +142,7 @@ public class OpenAISlurDetector : MonoBehaviour
                 var chatResult = await api.Chat.CreateChatCompletionAsync(new ChatRequest()
                 {
 
-                    Model = new Model("gpt-oss:20b"),
+                    Model = new Model("gpt-oss:120b"),
                     Temperature = 1,
                     MaxTokens = 3000,
                     Messages = messages

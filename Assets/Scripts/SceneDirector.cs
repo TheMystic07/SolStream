@@ -294,17 +294,61 @@ public class SceneDirector : MonoBehaviour
 
     private void GetLocation(string lowerLine, ref GameObject location, ref GameObject lookAt)
     {
-
-        if (lowerLine.Contains("work bench") || lowerLine.Contains("workbench")) // if the character is in the instruction
+        try
         {
-            location = currentDimension.deskLocation1;
-        }
-        else if (lowerLine.Contains("center stage"))
-        {
-            location = currentDimension.centerStage1;
-            lookAt = currentDimension.actualCamera;
-        }
+            Debug.Log("[GetLocation] Method called");
+            
+            if (string.IsNullOrEmpty(lowerLine))
+            {
+                Debug.LogError("[GetLocation] lowerLine is null or empty!");
+                return;
+            }
+            
+            Debug.Log($"[GetLocation] Line length: {lowerLine.Length}");
+            
+            if (currentDimension == null)
+            {
+                Debug.LogError("[GetLocation] currentDimension is NULL!");
+                return;
+            }
 
+            Debug.Log("[GetLocation] Checking for workbench...");
+            bool hasWorkbench = lowerLine.Contains("work bench") || lowerLine.Contains("workbench");
+            Debug.Log($"[GetLocation] Has workbench: {hasWorkbench}");
+
+            if (hasWorkbench)
+            {
+                Debug.Log("[GetLocation] Getting deskLocation1...");
+                location = currentDimension.deskLocation1;
+                Debug.Log("[GetLocation] Got workbench location");
+            }
+            else
+            {
+                Debug.Log("[GetLocation] Checking for center stage...");
+                bool hasCenterStage = lowerLine.Contains("center stage");
+                Debug.Log($"[GetLocation] Has center stage: {hasCenterStage}");
+                
+                if (hasCenterStage)
+                {
+                    Debug.Log("[GetLocation] Getting centerStage1...");
+                    location = currentDimension.centerStage1;
+                    Debug.Log("[GetLocation] Getting actualCamera...");
+                    lookAt = currentDimension.actualCamera;
+                    Debug.Log("[GetLocation] Got center stage location");
+                }
+                else
+                {
+                    Debug.Log("[GetLocation] No location match");
+                }
+            }
+
+            Debug.Log("[GetLocation] Done");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[GetLocation] EXCEPTION: {ex.Message}");
+            Debug.LogError($"[GetLocation] Stack trace: {ex.StackTrace}");
+        }
     }
 
     // returns the charcter that is talking in the dialog, so Rick: fuck you will return rick. 
@@ -343,6 +387,7 @@ public class SceneDirector : MonoBehaviour
     // so "[rick walks to morty]  returns chacters 1 rick, character 2 morty.
     public void GetCharacters(string lowerLine, ref CharacterInfo character1, ref CharacterInfo character2)
     {
+        Debug.Log($"[GetCharacters] Starting with line: {lowerLine}");
         int character1Index = -1;
         int character2Index = -1;
 
@@ -359,39 +404,69 @@ public class SceneDirector : MonoBehaviour
             lowerLine = System.Text.RegularExpressions.Regex.Replace(lowerLine, "jar jar", "jar jar binks", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
 
-        foreach (CharacterInfo character in characterList)
+        Debug.Log($"[GetCharacters] About to iterate through {characterList.Count} characters");
+        
+        for (int i = 0; i < characterList.Count; i++)
         {
-
-
-            if (lowerLine.Contains(character.name.ToLower())) // if the character is in the instruction
+            try
             {
-
-                if (character1 != null) // if this is the second character found
+                CharacterInfo character = characterList[i];
+                Debug.Log($"[GetCharacters] Processing character index {i}");
+                
+                if (character == null)
                 {
-                    //set it to character2
-                    character2Index = lowerLine.IndexOf(character.name.ToLower());
-                    character2 = character;
-                    if (character1Index > character2Index) // check if need to swap 
-                    {
-                        // swap
-                        int temp = character1Index;
-                        character1Index = character2Index;
-                        character2Index = temp;
+                    Debug.LogWarning($"[GetCharacters] Character at index {i} is NULL, skipping");
+                    continue;
+                }
+                
+                if (string.IsNullOrEmpty(character.name))
+                {
+                    Debug.LogWarning($"[GetCharacters] Character at index {i} has null/empty name, skipping");
+                    continue;
+                }
+                
+                Debug.Log($"[GetCharacters] Checking character: {character.name}");
 
-                        character2 = character1;
+                string characterNameLower = character.name.ToLower();
+                
+                if (lowerLine.Contains(characterNameLower)) // if the character is in the instruction
+                {
+                    Debug.Log($"[GetCharacters] Found match: {character.name}");
+
+                    if (character1 != null) // if this is the second character found
+                    {
+                        //set it to character2
+                        character2Index = lowerLine.IndexOf(characterNameLower);
+                        character2 = character;
+                        if (character1Index > character2Index) // check if need to swap 
+                        {
+                            // swap
+                            int temp = character1Index;
+                            character1Index = character2Index;
+                            character2Index = temp;
+
+                            character2 = character1;
+                            character1 = character;
+                        }
+                        Debug.Log($"[GetCharacters] Set as character2");
+                    }
+                    else
+                    {
+                        //if this is the first character found we just chuck that bitch in.
+                        character1Index = lowerLine.IndexOf(characterNameLower);
                         character1 = character;
+                        Debug.Log($"[GetCharacters] Set as character1");
                     }
                 }
-                else
-                {
-                    //if this is the first character found we just chuck that bitch in.
-                    character1Index = lowerLine.IndexOf(character.name.ToLower());
-                    character1 = character;
-                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[GetCharacters] Exception at character index {i}: {ex.Message}");
+                Debug.LogError($"[GetCharacters] Stack trace: {ex.StackTrace}");
             }
         }
 
-
+        Debug.Log($"[GetCharacters] Completed. character1={character1?.name ?? "null"}, character2={character2?.name ?? "null"}");
 
     }
 
@@ -425,7 +500,7 @@ public class SceneDirector : MonoBehaviour
     // this is also where we identify that ai images we need to generate. thats the reference string inputs
     public List<string>[] ProcessDialogFromLines(ref string[] outputLines, ref string nameOfAiGeneratedCharacter, ref string nameOfAiGeneratedDimension)
     {
-
+        Debug.Log($"[ProcessDialogFromLines] Starting, outputLines.Length = {outputLines.Length}");
 
         var voiceModelUUIDs = new List<string>();
         var characterNames = new List<string>();
@@ -433,8 +508,19 @@ public class SceneDirector : MonoBehaviour
 
 
 
+        int maxRetries = 100; // Prevent infinite loops
+        int retryCount = 0;
+        
         for (int i = 0; i < outputLines.Length; i++)
         {
+            if (retryCount > maxRetries)
+            {
+                Debug.LogError($"[ProcessDialogFromLines] Max retries exceeded at line {i}. Skipping line: {outputLines[i]}");
+                retryCount = 0;
+                continue;
+            }
+            
+            Debug.Log($"[ProcessDialogFromLines] Processing line {i}/{outputLines.Length}: {outputLines[i]}");
             string line = outputLines[i];
 
             string lowerLine = line.ToLower();
@@ -442,8 +528,10 @@ public class SceneDirector : MonoBehaviour
             // if its a dialog line
             if (line.Contains(":"))
             {
+                Debug.Log($"[ProcessDialogFromLines] Line contains colon, calling GetWhosTalking");
                 //get which character is talking and add their dialog to the lists
                 CharacterInfo talkingCharacter = GetWhosTalking(lowerLine);
+                Debug.Log($"[ProcessDialogFromLines] GetWhosTalking returned: {(talkingCharacter != null ? talkingCharacter.name : "null")}");
                 if (talkingCharacter != null)
                 {
 
@@ -462,36 +550,45 @@ public class SceneDirector : MonoBehaviour
                     {
                         textsToSpeak.Add(line.Substring(talkingCharacter.name.Length + 2));
                     }
-
+                    
+                    retryCount = 0; // Reset retry counter on successful processing
                 }
 
             }
             else if (line.Contains("["))
             {
-
+                Debug.Log("[ProcessDialogFromLines] Line contains '[', processing as action");
                 CharacterInfo character1 = null;
                 CharacterInfo character2 = null;
 
+                Debug.Log("[ProcessDialogFromLines] Calling GetCharacters...");
                 GetCharacters(lowerLine, ref character1, ref character2);
+                Debug.Log($"[ProcessDialogFromLines] GetCharacters returned: character1={character1?.name ?? "null"}, character2={character2?.name ?? "null"}");
 
                 // if there is no character in the direction its immidiately invalid
                 if (character1 != null)
                 {
+                    Debug.Log($"[ProcessDialogFromLines] character1 found: {character1.name}");
                     GameObject location = null;
                     GameObject lookAt = null;
 
+                    Debug.Log("[ProcessDialogFromLines] Calling GetLocation...");
                     GetLocation(lowerLine, ref location, ref lookAt);
+                    Debug.Log($"[ProcessDialogFromLines] GetLocation returned: location={location?.name ?? "null"}");
 
                     //line is a walks to direction, and there is a location or a character2
                     if (lowerLine.Contains("walks to ") && (location != null || character2 != null || lowerLine.Contains("workbench")))
                     {
+                        Debug.Log("[ProcessDialogFromLines] Valid 'walks to' action, continuing...");
                         // then its a valid direction
+                        retryCount = 0; // Reset retry counter on successful processing
                         continue;
                     }
                     else if (lowerLine.Contains("enter the portal to") ||
                     lowerLine.Contains("enter a portal to") ||
                     lowerLine.Contains("enter portal to"))
                     {
+                        Debug.Log("[ProcessDialogFromLines] Portal action detected, checking dimension...");
                         // this is a mad autistic way of doing this but i cant be fucked changin it
                         if (lowerLine.Contains("yard"))
                         {
@@ -546,6 +643,7 @@ public class SceneDirector : MonoBehaviour
 
 
                         // also a valid direction
+                        retryCount = 0; // Reset retry counter on successful processing
                         continue;
                     }
 
@@ -553,14 +651,17 @@ public class SceneDirector : MonoBehaviour
 
                 // if you got to this one then this means that its an invalid action, 
                 // we will convert it to a narration line.
+                Debug.Log($"[ProcessDialogFromLines] Invalid action detected, converting to narrator line: {line}");
                 string newline = "Narrator: " + line.Replace("[", "").Replace("]", "");
                 outputLines[i] = newline;
                 // now that weve reset the new line re run it and it should be detected as dialog.
+                retryCount++; // Increment retry counter when we reprocess a line
                 i -= 1;
                 continue;
             }
         }
 
+        Debug.Log($"[ProcessDialogFromLines] Completed. Found {textsToSpeak.Count} dialog lines");
         return new List<string>[] { voiceModelUUIDs, characterNames, textsToSpeak };
 
     }
